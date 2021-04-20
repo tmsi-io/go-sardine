@@ -1,2 +1,2 @@
 # go-sardine
-go microservice
+go 轻量级脚手架
