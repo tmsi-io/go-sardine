@@ -16,17 +16,19 @@ type redis struct {
 	rLock sync.RWMutex
 }
 
-var businessMap redis
+var bizMap redis
 
 func init() {
-	businessMap.rMap = make(map[string]Interface)
+	bizMap.rMap = make(map[string]Interface)
 }
 
-func RedisMap() *redis {
-	return &businessMap
+// RedisManager
+// manager all redis by biz name
+func RedisManager() *redis {
+	return &bizMap
 }
 
-func (manager *redis) SetBusinessRedis(business string, URL string) Interface {
+func (manager *redis) SetConn(business string, URL string) Interface {
 	/*
 		新建业务链接
 	*/
@@ -47,7 +49,7 @@ func (manager *redis) SetBusinessRedis(business string, URL string) Interface {
 	}
 }
 
-func (manager *redis) GetBusinessRedis(business string) Interface {
+func (manager *redis) GetConn(business string) Interface {
 	/*
 		获取业务链接
 	*/
@@ -60,7 +62,7 @@ func (manager *redis) GetBusinessRedis(business string) Interface {
 	return nil
 }
 
-func (manager *redis) DelBusinessRedis(business string) {
+func (manager *redis) DelCon(business string) {
 	/*
 		从业务Map中删除并关闭Redis链接
 	*/
@@ -81,13 +83,13 @@ func (manager *redis) getNewRedisObj(url string) Interface {
 }
 
 func (manager *redis) dialWithURL(URL string, Redis Interface) {
-	logger := logger.GetLogger().WithFields(logrus.Fields{"Redis": URL})
+	log := logger.GetLogger().WithFields(logrus.Fields{"Redis": URL})
 	for {
 		if err := Redis.Conn(URL); err != nil {
-			logger.Errorf("Dali Redis with URL Failed: [%v]", err)
+			log.Errorf("Dali Redis with URL Failed: [%v]", err)
 			time.Sleep(3 * time.Second)
 		} else {
-			logger.Info("Connect to Redis OK.")
+			log.Info("Connect to Redis OK.")
 			break
 		}
 	}

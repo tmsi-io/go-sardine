@@ -22,5 +22,4 @@ type Interface interface {
 	SetNX(key string, value interface{}, expiration time.Duration) (bool, error)
 	HScan(key string, cursor uint64, match string, count int64) ([]string, uint64, error)
 	PipeLineHSet(filed string, datas map[string]interface{}) ([]redisv7.Cmder, error)
-	GetClient() (interface{}, error)
 }
