@@ -24,7 +24,7 @@ func init() {
 
 // RedisManager
 // manager all redis by biz name
-func RedisManager() *redis {
+func Pool() *redis {
 	return &bizMap
 }
 
@@ -101,6 +101,19 @@ func (manager *redis) URlWasCluster(_url string) bool {
 		return false
 	} else {
 		if len(strings.Split(pUrl.Host, ",")) > 1 {
+			return true
+		} else {
+			return false
+		}
+	}
+}
+
+func (manager *redis) URLWasSentinel(_url string) bool {
+	if pUrl, err := url.Parse(_url); err != nil {
+		fmt.Println(err)
+		return false
+	} else {
+		if pUrl.Scheme == SentinelAddr1 || pUrl.Scheme == SentinelAddr2 {
 			return true
 		} else {
 			return false

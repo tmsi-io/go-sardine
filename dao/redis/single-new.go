@@ -13,27 +13,27 @@ import (
 
 func (single *Single) Conn(_url string) error {
 	single.logger = logger.GetLogger().WithFields(logrus.Fields{
-		"SourceURL": _url,
+		"Config": _url,
 	})
 	if pUrl, err := url.Parse(_url); err != nil {
 		return err
 	} else {
 		if args, err := url.ParseQuery(pUrl.RawQuery); err == nil { // 解析url对象
-			if maxRetry, ok := args["MaxRetries"]; ok {
+			if maxRetry, ok := args[ConfigMaxRetries]; ok {
 				mR, _ := strconv.Atoi(maxRetry[0])
 				single.maxRetries = mR
 			}
-			if PoolSize, ok := args["PoolSize"]; ok {
+			if PoolSize, ok := args[ConfigPoolSize]; ok {
 				pS, _ := strconv.Atoi(PoolSize[0])
 				single.poolSize = pS
 			}
 		}
 		if len(pUrl.Host) == 3 {
-			return errors.New("Can't Parse HostPort Config. ")
+			return errors.New(ErrorConfigHost)
 		} else {
 			single.addr = pUrl.Host
 			if db := strings.Split(pUrl.Path, "/"); len(db) < 2 {
-				return errors.New("Can't Parse DB Config. ")
+				return errors.New(ErrorConfigDB)
 			} else {
 				single.db, _ = strconv.Atoi(db[1])
 			}

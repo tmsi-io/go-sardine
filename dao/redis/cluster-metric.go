@@ -24,9 +24,9 @@ func (cluster *Cluster) AfterProcess(ctx context.Context, cmd _redis.Cmder) erro
 		} else {
 			_metricReqErr.Inc(cluster.host, cmd.Name(), err.Error())
 		}
-		return nil
+	} else {
+		_metricHits.Inc(cluster.host)
 	}
-	_metricHits.Inc(cluster.host)
 	return nil
 }
 
