@@ -25,6 +25,7 @@ type Cluster struct {
 
 var clusterKey = struct{}{}
 
+// can't run in this mode
 func (cluster *Cluster) KEYS(key string) ([]string, error) {
 	if cluster.client == nil {
 		return nil, errors.New(ErrorConnLoss)

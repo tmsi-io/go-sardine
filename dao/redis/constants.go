@@ -23,3 +23,10 @@ const (
 	CfgPoolTimeout = 1
 	CfgIdleTimeout = 20
 )
+
+// Sentinel constants
+const (
+	DefaultSentinel = "mymaster"
+	SentinelAddr1   = "redis-sentinel"
+	SentinelAddr2   = "redis+sentinel"
+)

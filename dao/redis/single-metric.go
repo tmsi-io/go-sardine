@@ -14,9 +14,9 @@ func (single *Single) BeforeProcess(ctx context.Context, cmd redisv7.Cmder) (con
 
 func (single *Single) AfterProcess(ctx context.Context, cmd redisv7.Cmder) error {
 	err := cmd.Err()
-	timeStart, ok := ctx.Value(key).(time.Time)
+	tStart, ok := ctx.Value(key).(time.Time)
 	if ok {
-		_metricReqDur.Observe(time.Since(timeStart).Milliseconds(), single.addr, cmd.Name())
+		_metricReqDur.Observe(time.Since(tStart).Milliseconds(), single.addr, cmd.Name())
 	}
 	if err != nil {
 		if errors.Is(err, redisv7.Nil) {
