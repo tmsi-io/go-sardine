@@ -15,7 +15,7 @@ const (
 
 // 初始化并保活
 // RegisterAndHeartBeat
-func RegisterAndHeartBeat(app string, hostname string, clientIP string, cPort int, SrvUP bool, instanceID string) error {
+func RegisterAndHeartBeat(app, hostname, clientIP string, cPort int, SrvUP bool, instanceID string) error {
 	var strStatus string
 	if SrvUP {
 		strStatus = EurekaStatusUP
@@ -27,7 +27,7 @@ func RegisterAndHeartBeat(app string, hostname string, clientIP string, cPort in
 		HostName:         hostname,
 		App:              app,
 		Port:             &Port{Port: cPort, Enable: "true"},
-		IPAddr:           clientIP,
+		IPAddr:           clientIP, // sometimes ip better, like in docker
 		VipAddress:       clientIP,
 		SecureVipAddress: clientIP,
 		HealthCheckUrl:   LocalHTTPScheme + clientIP + ":" + strconv.Itoa(cPort) + EurekaHealthCheckURL, // {"status": "UP|DOWN"}

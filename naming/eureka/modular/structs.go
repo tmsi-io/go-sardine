@@ -7,7 +7,7 @@ type ServerInfo struct {
 	DataCenter DataCenterInfo //"class: com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo"
 }
 
-type InstanceInfo struct {
+type AppInfo struct {
 	Id          string     //实例ID
 	HostName    string     //
 	AppName     string     //
@@ -26,4 +26,15 @@ type Eureka struct {
 	ServiceUrls []string
 	Client      *http.Client
 	Json        bool
+}
+
+func SetNewApp(host, name string, id string, bizPort int, sPort int) *AppInfo {
+	var app AppInfo
+	app.BizPort = bizPort
+	app.Id = id
+	app.HostName = host
+	app.AppName = name
+	app.StatusPort = sPort
+	app.Init()
+	return &app
 }

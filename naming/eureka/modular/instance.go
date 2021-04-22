@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (ins *InstanceInfo) Init() {
+func (ins *AppInfo) Init() {
 	var err error
 	ins.eureka, err = NewEureka(ins.server.Urls, nil)
 	if err != nil {
@@ -17,7 +17,7 @@ func (ins *InstanceInfo) Init() {
 }
 
 // NewInstance
-func (ins *InstanceInfo) NewInstance() (Instance, error) {
+func (ins *AppInfo) NewInstance() (Instance, error) {
 	if ins.BizPort == 0 || ins.Ip == "" || ins.AppName == "" || ins.Id == "" || ins.StatusPort == 0 {
 		return Instance{}, errors.New("loss argument. ")
 	}
@@ -55,7 +55,7 @@ func (ins *InstanceInfo) NewInstance() (Instance, error) {
 
 // 注册app
 // RegisterApp
-func (ins *InstanceInfo) RegisterApp(_ins Instance) bool {
+func (ins *AppInfo) RegisterApp(_ins Instance) bool {
 	err := ins.eureka.RegisterInstance(&_ins)
 	if err != nil {
 		log.Fatalln(fmt.Sprintf("GenerateInstance Error: %v. ", err))
@@ -66,6 +66,6 @@ func (ins *InstanceInfo) RegisterApp(_ins Instance) bool {
 
 // 服务器端默认超时时间是30秒
 // SendHeartBeat
-func (ins *InstanceInfo) SendHeartBeat(_ins Instance, interval int) {
+func (ins *AppInfo) SendHeartBeat(_ins Instance, interval int) {
 	ins.eureka.SendHeartBeat(&_ins, time.Second*20)
 }
