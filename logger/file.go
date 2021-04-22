@@ -14,7 +14,8 @@ import (
 
 const (
 	//MB单位
-	mByte = 1024 * 1024
+	mByte      = 1024 * 1024
+	backFormat = "01-02_15:04:05"
 )
 
 type File struct {
@@ -24,6 +25,8 @@ type File struct {
 	Ext      func() string //日志文件备份后缀格式，可自定义方法返回后缀
 	size     int64         //文件大小
 	file     *os.File
+	fileDir  string
+	fileName string
 	lock     sync.Mutex
 }
 
@@ -48,7 +51,7 @@ func (f *File) Write(p []byte) (n int, err error) {
 		f.SaveTime = 3
 	}
 	if f.file == nil {
-		f.createFile()
+		f.existOrCreateFile()
 	}
 	if f.size+writeLen >= f.max() {
 		err := f.rotate()
@@ -79,21 +82,28 @@ func (f *File) max() int64 {
 	return int64(f.MaxSize) * mByte
 }
 
+//检查文件是否存在，存在则写入文件对象，不存在则创建新对象
 //传入文件名生成目录文件，可带相对路径,e.g name:"test.log",name:"log/test.log"
 //若传入为空，默认生成log/项目名.log目录文件
-func (f *File) createFile() error {
+func (f *File) existOrCreateFile() error {
 	f.lock.Lock()
 	defer f.lock.Unlock()
 	if f.FileName == "" {
 		f.FileName = fmt.Sprintf("log/%s", getProjectName())
 	}
+	proPath, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	f.fileDir = filepath.Join(proPath, filepath.Dir(f.FileName))
+	f.fileName = filepath.Base(f.FileName)
 	if err := f.createDir(); err != nil {
 		return err
 	}
 	file := f.dir()
-	_, err := os.Stat(file)
+	info, err := os.Stat(file)
 	if os.IsNotExist(err) {
 		return f.newFile()
+	} else {
+		f.file, err = os.Open(f.dir())
+		f.size = info.Size()
 	}
 	return nil
 }
@@ -101,7 +111,7 @@ func (f *File) createFile() error {
 func getProjectName() string {
 	proPath, _ := os.Getwd()
 	if runtime.GOOS == "windows" {
-		s := strings.Split(proPath, "\\")
+		s := strings.Split(proPath, "/")
 		return s[len(s)-1]
 	} else {
 		s := strings.Split(proPath, "/")
@@ -131,41 +141,45 @@ func (f *File) newFile() error {
 }
 
 func (f *File) rotate() (err error) {
-	err = f.close()
-	err = f.backup()
-	err = f.createFile()
+	if err = f.close(); err != nil {
+		return err
+	}
+	if err = f.backup(); err != nil {
+		return err
+	}
+	if err = f.existOrCreateFile(); err != nil {
+		return err
+	}
 	return
 }
 
 func (f *File) backup() error {
 	f.lock.Lock()
 	defer f.lock.Unlock()
-	oldName := f.backupName()
-	oldPath := absDir(oldName)
-	from, err := syscall.UTF16PtrFromString(oldPath)
+	newName := f.backupName()
+	//newPath := absDir(newName)
+	from, err := syscall.UTF16PtrFromString(filepath.Join(f.fileDir, f.fileName))
 	if err != nil {
-
+		return err
 	}
-	to, err := syscall.UTF16PtrFromString(f.dir())
+	to, err := syscall.UTF16PtrFromString(filepath.Join(f.fileDir, newName))
 	if err != nil {
-
+		return err
 	}
 	return windows.MoveFile(from, to)
 }
 
 //备份文件名，后缀可自定义，默认使用月日时分秒格式为后缀
 func (f *File) backupName() string {
-	dir := filepath.Dir(f.FileName)
-	filename := filepath.Base(f.FileName)
-	ext := filepath.Ext(filename)
-	prefix := filename[:len(filename)-len(ext)]
+	ext := filepath.Ext(f.fileName)
+	prefix := f.fileName[:len(f.fileName)-len(ext)]
 	var bakExt string
 	if f.Ext == nil {
-		bakExt = time.Now().Format("01-02_15:04:05")
+		bakExt = time.Now().Format(backFormat)
 	} else {
 		bakExt = f.Ext()
 	}
-	return filepath.Join(dir, fmt.Sprintf("%s-%s%s", prefix, bakExt, ext))
+	return fmt.Sprintf("%s-%s%s", prefix, bakExt, ext)
 }
 
 func (f *File) close() error {
