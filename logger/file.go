@@ -2,13 +2,11 @@ package logger
 
 import (
 	"fmt"
-	"golang.org/x/sys/windows"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -158,21 +156,22 @@ func (f *File) backup() error {
 	defer f.lock.Unlock()
 	newName := f.backupName()
 	//newPath := absDir(newName)
-	from, err := syscall.UTF16PtrFromString(filepath.Join(f.fileDir, f.fileName))
-	if err != nil {
-		return err
-	}
-	to, err := syscall.UTF16PtrFromString(filepath.Join(f.fileDir, newName))
-	if err != nil {
-		return err
-	}
-	return windows.MoveFile(from, to)
+	return os.Rename(f.dir(), absDir(newName))
+	//from, err := syscall.UTF16PtrFromString(f.FileName)
+	//if err != nil {
+	//	return err
+	//}
+	//to, err := syscall.UTF16PtrFromString(newName)
+	//if err != nil {
+	//	return err
+	//}
+	//return windows.MoveFile(from, to)
 }
 
 //备份文件名，后缀可自定义，默认使用月日时分秒格式为后缀
 func (f *File) backupName() string {
-	ext := filepath.Ext(f.fileName)
-	prefix := f.fileName[:len(f.fileName)-len(ext)]
+	ext := filepath.Ext(f.FileName)
+	prefix := f.FileName[:len(f.FileName)-len(ext)]
 	var bakExt string
 	if f.Ext == nil {
 		bakExt = time.Now().Format(backFormat)
