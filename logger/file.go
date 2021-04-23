@@ -13,7 +13,7 @@ import (
 const (
 	//MB单位
 	mByte      = 1024 * 1024
-	backFormat = "01-02_15:04:05"
+	backFormat = "0102_150405"
 )
 
 type File struct {
@@ -155,17 +155,7 @@ func (f *File) backup() error {
 	f.lock.Lock()
 	defer f.lock.Unlock()
 	newName := f.backupName()
-	//newPath := absDir(newName)
 	return os.Rename(f.dir(), absDir(newName))
-	//from, err := syscall.UTF16PtrFromString(f.FileName)
-	//if err != nil {
-	//	return err
-	//}
-	//to, err := syscall.UTF16PtrFromString(newName)
-	//if err != nil {
-	//	return err
-	//}
-	//return windows.MoveFile(from, to)
 }
 
 //备份文件名，后缀可自定义，默认使用月日时分秒格式为后缀
