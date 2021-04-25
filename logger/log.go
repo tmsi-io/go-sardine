@@ -6,25 +6,28 @@ import (
 	"sync"
 )
 
-var _log logrus.Logger
+type logger interface {
+
+}
 
 type Logger struct {
-	logrus.Logger
+	L *logrus.Logger
 	Opts *Option
 	lock sync.RWMutex
 }
 
 func New() *Logger {
-	var l = new(Logger)
+	var l Logger
+	l.L = logrus.New()
 	options := DefaultOptions()
-	l.SetOutput(os.Stderr)
-	l.SetLevel(options.Level)
-	l.SetReportCaller(true)
-	l.ExitFunc = os.Exit
-	l.ReportCaller = false
-	l.Hooks = make(logrus.LevelHooks)
+	l.L.SetOutput(os.Stderr)
+	l.L.SetLevel(options.Level)
+	l.L.SetReportCaller(true)
+	l.L.ExitFunc = os.Exit
+	l.L.ReportCaller = false
+	l.L.Hooks = make(logrus.LevelHooks)
 	l.Opts = options
-	return l
+	return &l
 }
 
 func DefaultOptions() *Option {
@@ -39,7 +42,7 @@ func (l *Logger) SetOptions(opts ...OptionFunc) {
 	for _, opt := range opts {
 		opt(l.Opts)
 	}
-	l.SetLevel(l.Opts.Level)
+	l.L.SetLevel(l.Opts.Level)
 	if l.Opts.IsGradeOutput{
 		l.AddLfsHook()
 	}

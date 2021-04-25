@@ -98,9 +98,10 @@ func (f *File) existOrCreateFile() error {
 	file := f.dir()
 	info, err := os.Stat(file)
 	if os.IsNotExist(err) {
-		return f.newFile()
+		return f.openFile()
 	} else {
-		f.file, err = os.Open(f.dir())
+		fmt.Println("44444444444444444444444444444444")
+		f.openFile()
 		f.size = info.Size()
 	}
 	return nil
@@ -129,8 +130,8 @@ func (f *File) createDir() error {
 	return nil
 }
 
-func (f *File) newFile() error {
-	file, err := os.OpenFile(f.dir(), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0755)
+func (f *File) openFile() error {
+	file, err := os.OpenFile(f.dir(), os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModeAppend|os.ModePerm)
 	if err != nil {
 		return err
 	}
