@@ -1,13 +1,18 @@
 package logger
 
-import "strings"
+import (
+	"github.com/sirupsen/logrus"
+	"strings"
+)
 
 type Option struct {
 	FileName      string
 	SaveTime      int
 	MaxSize       int
 	Format        func() string
-	IsSplit       bool
+	Level         logrus.Level
+	Formatter     logrus.Formatter
+	//IsSplit       bool
 	IsGradeOutput bool
 }
 
@@ -44,15 +49,28 @@ func MaxSize(m int) OptionFunc {
 }
 
 //是否日志分片，默认false
-func IsSplit(b bool) OptionFunc {
-	return func(opt *Option) {
-		opt.IsSplit = b
-	}
-}
+//func IsSplit(b bool) OptionFunc {
+//	return func(opt *Option) {
+//		opt.IsSplit = b
+//	}
+//}
 
 //是否按照日志等级分别输出文件，默认false
 func IsGradeOutput(b bool) OptionFunc {
 	return func(opt *Option) {
 		opt.IsGradeOutput = b
+	}
+}
+
+//设置日志等级
+func Level(lv logrus.Level) OptionFunc{
+	return func(opt *Option) {
+		opt.Level = lv
+	}
+}
+
+func Formater(format logrus.Formatter) OptionFunc{
+	return func(opt *Option) {
+		opt.Formatter = format
 	}
 }
