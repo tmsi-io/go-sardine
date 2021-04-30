@@ -63,7 +63,7 @@ func IsGradeOutput(b bool) OptionFunc {
 }
 
 //设置日志等级
-func Level(lv logrus.Level) OptionFunc{
+func SetLevel(lv logrus.Level) OptionFunc{
 	return func(opt *Option) {
 		opt.Level = lv
 	}

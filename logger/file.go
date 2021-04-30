@@ -100,7 +100,6 @@ func (f *File) existOrCreateFile() error {
 	if os.IsNotExist(err) {
 		return f.openFile()
 	} else {
-		fmt.Println("44444444444444444444444444444444")
 		f.openFile()
 		f.size = info.Size()
 	}
