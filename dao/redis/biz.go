@@ -22,7 +22,7 @@ func init() {
 	bizMap.rMap = make(map[string]Interface)
 }
 
-// RedisManager
+// Pool RedisManager
 // manager all redis by biz name
 func Pool() *redis {
 	return &bizMap
