@@ -7,7 +7,7 @@ import (
 	"go.etcd.io/etcd/clientv3"
 )
 
-// 查询带状态接口
+// DiscoveryService query service  return has status appinstance
 func (etcd *Client) DiscoveryService(appName string) []datadefine.AppInstance {
 	var ins []datadefine.AppInstance
 	prefix := etcd.keyPrefix("", appName)
