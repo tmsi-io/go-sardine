@@ -68,8 +68,7 @@ func (pThis AppInstance) GetPickWeight(zone string) int {
 	return 0 // 默认未设置相关机房设置时,设置为1 or 0?
 }
 
-// 获取权重
-// GetWeight
+// GetWeight  获取权重
 func (pThis AppInstance) GetWeight(zone string) int {
 	if weight, ok := pThis.Extend.IDCWeight[zone]; ok {
 		return weight
@@ -110,7 +109,7 @@ func (pThis AppInstance) AvailableByZone(zone string) bool {
 	return true
 }
 
-// 刷新服务对于已经设置的各机房的负载
+// RefreshZoneWeight refresh services zone weight
 func (pThis AppInstance) RefreshZoneWeight() {
 	var IDCWeight map[string]int
 	if pThis.PickWeight == nil {
@@ -124,17 +123,12 @@ func (pThis AppInstance) RefreshZoneWeight() {
 	for zone, weight := range IDCWeight {
 		var pickWeight int
 		var gift int
-		// 当服务所在机房与设置机房一致时,加上一层, 确保负载设置后,流量尽量压到指定机房,
-		// pickWeight最大范围==0~Sqrt(maxload), 按设置的limit超过范围需要200^2=40000最大负载服务才会有坏处理
-		// 设置时,第一梯度机房(边缘侧)权重设置为0-30?, 后续梯度机房,根据实际设置
 		if pThis.BaseInfo.Zone == zone {
 			gift = 1
 		}
-		// 负载已满
 		if pThis.GetMaxLoad()-pThis.BaseInfo.CurrLoad < 0 {
 			pickWeight = 0
 		} else {
-			//(maxlimit-优先级)＊math.Sqrt(MaxLoad-LocalCount)
 			pickWeight = (WeightLimit - weight + 1 + gift*WeightLimit) * int(math.Sqrt(float64(pThis.GetMaxLoad()-pThis.BaseInfo.CurrLoad)))
 
 		}
